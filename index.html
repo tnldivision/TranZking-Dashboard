@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRANZKING - Official Website</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tranzking: {
+                            main: '#05070a',
+                            card: '#0a0e14',
+                            accent: '#06b6d4',
+                            distance: '#22c55e',
+                            muted: '#334155',
+                            textPrimary: '#f8fafc',
+                            textSecondary: '#94a3b8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons & PapaParse -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <style>
+        body { background-color: #05070a; color: #f8fafc; overflow-x: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass-nav { background: rgba(5, 7, 10, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(51, 65, 85, 0.3); }
+        
+        /* Cinematic Hero Background - Fallback Image inside URL */
+        .hero-bg {
+             background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.4), #05070a), url("https://github.com/tamilnadutruckingcrew/Tamilnadu-Trucking-Crew-assets/blob/main/assests/banner.png?raw=true");
+             background-size: cover;
+             background-position: center;
+        }
+
+        /* Marquee Animation */
+        .marquee-container { overflow: hidden; white-space: nowrap; width: 100%; border-top: 1px solid rgba(51,65,85,0.3); border-bottom: 1px solid rgba(51,65,85,0.3); background: #0a0e14; padding: 12px 0; }
+        .marquee-content { display: inline-block; animation: marquee 30s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+
+        /* SMOOTH SCROLL REVEAL ENGINE */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+        .reveal.active { opacity: 1; transform: translate(0, 0); }
+        .reveal.from-left { transform: translateX(-100px); }
+        .reveal.from-right { transform: translateX(100px); }
+        .reveal.from-left.active, .reveal.from-right.active { transform: translate(0, 0); }
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+    </style>
+</head>
+<body class="min-h-screen relative selection:bg-tranzking-accent selection:text-[#05070a]">
+
+    <!-- NAVBAR -->
+    <nav class="glass-nav fixed w-full z-50 top-0 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Big tranzking Branding -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-tranzking-main border-2 border-tranzking-accent shadow-[0_0_15px_rgba(6,182,212,0.4)] flex items-center justify-center overflow-hidden p-1">
+                    <!-- Dynamic Asset Tag Added Here -->
+                    <img data-asset="tranzking_LOGO" src="https://files.catbox.moe/ujn8ng.png" alt="tranzking" class="w-full h-full object-contain">
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-widest text-white leading-none">tranzking</h1>
+                    <span class="text-[10px] font-bold text-tranzking-accent tracking-[0.2em] uppercase">Division <span class="text-tranzking-muted ml-1"></span></span>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-tranzking-textSecondary tracking-wider uppercase">
+                 <a href="index.html" class="text-tranzking-accent transition-colors flex items-center gap-2"><i data-lucide="home" class="w-4 h-4"></i> Home</a>
+                 <a href="news.html" class="hover:text-tranzking-accent transition-colors flex items-center gap-2"><i data-lucide="newspaper" class="w-4 h-4"></i> News</a>
+                 <a href="gallery.html" class="hover:text-tranzking-accent transition-colors flex items-center gap-2"><i data-lucide="image" class="w-4 h-4"></i> Gallery</a>
+                 <!-- NEW APPLY BUTTON IN NAVBAR -->
+                 <a href="#join-fleet" class="hover:text-yellow-500 transition-colors flex items-center gap-2 text-tranzking-textSecondary"><i data-lucide="user-plus" class="w-4 h-4"></i> Apply</a>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="openAuthModal()" class="px-6 py-2.5 bg-white text-[#05070a] rounded-lg text-xs font-black uppercase tracking-wider hover:bg-gray-200 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> Crew Login
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CINEMATIC HERO -->
+    <main data-bg-asset="HOME_BG" class="hero-bg pt-40 pb-20 px-6 min-h-[85vh] flex flex-col justify-center items-center text-center relative z-10">
+        
+        <div class="inline-flex items-center gap-3 px-5 py-2 border-2 border-yellow-500/40 bg-yellow-500/10 rounded-full mb-8 shadow-[0_0_20px_rgba(234,179,8,0.15)]">
+            <img src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="TNL" class="w-6 h-6 rounded-full border border-yellow-500">
+            <span class="text-[10px] font-black tracking-widest text-yellow-500 uppercase">An official division of Tamilnadu Logistics</span>
+        </div>
+
+        <h1 class="text-5xl md:text-7xl lg:text-[5.5rem] font-black text-white leading-[1.05] mb-6 tracking-tighter uppercase">
+            Tamilnadu <br> <span class="text-tranzking-textSecondary">Trucking Crew</span>
+        </h1>
+        
+        <p class="text-tranzking-textSecondary text-sm md:text-lg mb-10 max-w-2xl font-medium leading-relaxed bg-tranzking-main/40 p-4 rounded-xl backdrop-blur-sm border border-tranzking-muted/20">
+            The premier Euro Truck Simulator 2 VTC division. Experience professional convoy management, dynamic global tours, and elite telemetry tracking.
+        </p>
+        
+        <div class="flex flex-wrap justify-center gap-4">
+            <button onclick="openAuthModal()" class="px-8 py-4 bg-tranzking-accent hover:bg-tranzking-accent/80 text-[#05070a] rounded-xl font-black text-sm tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center gap-2">
+                Access Portal <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+            <a href="#stats" class="px-8 py-4 bg-tranzking-card/80 backdrop-blur-md border border-tranzking-muted hover:border-white hover:text-white text-tranzking-textSecondary rounded-xl font-black text-sm tracking-wider uppercase transition-all flex items-center gap-2">
+                Explore Fleet <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </a>
+        </div>
+    </main>
+
+    <!-- LIVE MARQUEE -->
+    <div class="marquee-container shadow-2xl relative z-20">
+        <div class="marquee-content text-[11px] font-mono font-bold tracking-widest text-tranzking-textSecondary uppercase" id="marqueeData">
+            <i data-lucide="loader" class="w-3 h-3 inline animate-spin mr-2"></i> Syncing live telemetry...
+        </div>
+    </div>
+
+    <!-- WELCOME / ABOUT SECTION -->
+    <section class="py-24 px-6 bg-[#030407] relative z-10 border-b border-tranzking-muted/20 overflow-hidden">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <span class="text-[10px] text-yellow-500 font-bold uppercase tracking-[0.3em]">Welcome</span>
+                <h2 class="text-3xl md:text-5xl font-black text-white mt-3 tracking-tight">🚛 tranzking - TranzKing</h2>
+                <div class="w-24 h-1 bg-yellow-500/50 mx-auto mt-6 rounded-full"></div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
+                <div class="space-y-6 reveal from-left delay-100">
+                    <h3 class="text-xl font-bold text-yellow-500 tracking-wider">English</h3>
+                    <ul class="space-y-4 text-tranzking-textSecondary text-sm md:text-base">
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>Official division of <strong class="text-white">Tamilnadu Logistics</strong>.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>Unites virtual truckers across Tamil Nadu.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>Focused on realistic trucking and organized convoys.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>Promotes teamwork, discipline, and friendship.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>Proud member of the Tamilnadu Logistics family.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>Join us and drive with pride!</span></li>
+                    </ul>
+                </div>
+                <div class="space-y-6 md:border-l border-tranzking-muted/30 md:pl-16 relative reveal from-right delay-200">
+                    <h3 class="text-xl font-bold text-yellow-500 tracking-wider">தமிழ்</h3>
+                    <ul class="space-y-4 text-tranzking-textSecondary text-sm md:text-base">
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span><strong class="text-white">தமிழ்நாடு லாஜிஸ்டிக்ஸ்</strong> நிறுவனத்தின் அதிகாரப்பூர்வ பிரிவு.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>தமிழ்நாட்டின் இணையவழி லாரி ஓட்டுநர்களை ஒன்றிணைக்கும் சமூகமாகும்.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>உண்மையான டிரக்கிங் அனுபவம் மற்றும் ஒழுங்கமைக்கப்பட்ட Convoy-கள்.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>ஒற்றுமை, கட்டுப்பாடு, மற்றும் சகோதரத்துவத்தை வளர்க்கும்.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>தமிழ்நாடு லாஜிஸ்டிக்ஸ் குடும்பத்தின் பெருமைமிக்க அங்கம்.</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="chevron-right" class="w-5 h-5 text-tranzking-accent shrink-0 mt-0.5"></i> <span>எங்களுடன் இணைந்து பெருமையுடன் பயணியுங்கள்!</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SVG CURVE STATS SECTION -->
+    <section id="stats" class="py-24 px-6 bg-[#030407] relative z-10 border-b border-tranzking-muted/20 reveal">
+        <div class="max-w-5xl mx-auto text-center">
+            <p class="text-[10px] font-black text-tranzking-textSecondary tracking-[0.3em] uppercase mb-4">The Distance Journey</p>
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight"><span id="orbitCountDisplay" class="text-tranzking-accent">0</span> orbits around Earth.</h2>
+            <p class="text-tranzking-textSecondary text-sm mb-16 max-w-2xl mx-auto">Every job our drivers complete adds to one shared odometer. Here's how far the fleet has actually travelled together.</p>
+            
+            <div class="relative w-full max-w-4xl mx-auto h-32 md:h-48 mb-16 px-4">
+                <svg viewBox="0 0 1000 200" class="absolute w-full h-full overflow-visible left-0 top-0" preserveAspectRatio="none">
+                    <path d="M 50,180 Q 500,0 950,180" fill="none" stroke="#1e293b" stroke-width="6" stroke-dasharray="15 10" stroke-linecap="round"/>
+                    <path id="orbitProgressPath" d="M 50,180 Q 500,0 950,180" fill="none" stroke="#06b6d4" stroke-width="8" stroke-linecap="round" class="transition-all duration-[2000ms] ease-out" stroke-dasharray="1200" stroke-dashoffset="1200"/>
+                    <circle id="node-100" cx="275" cy="108" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
+                    <text x="275" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">100×</text>
+                    <circle id="node-200" cx="500" cy="50" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
+                    <text x="500" y="22" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">200×</text>
+                    <circle id="node-300" cx="725" cy="108" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
+                    <text x="725" y="80" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">300×</text>
+                    <circle id="node-400" cx="950" cy="180" r="10" fill="#05070a" stroke="#1e293b" stroke-width="4" class="transition-colors duration-500"/>
+                    <text x="950" y="152" fill="#94a3b8" font-size="16" font-weight="bold" font-family="sans-serif" text-anchor="middle">400×</text>
+                </svg>
+                <div id="truckIndicator" class="absolute w-8 h-8 bg-tranzking-accent rounded-full flex items-center justify-center shadow-[0_0_20px_#06b6d4] transition-all duration-[2000ms] ease-out -translate-x-1/2 -translate-y-1/2 opacity-0 z-10">
+                    <i data-lucide="truck" class="w-4 h-4 text-[#05070a]"></i>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
+                <div class="flex flex-col items-center">
+                    <h4 class="text-4xl md:text-5xl font-black text-tranzking-accent mb-2" id="statDistance">0</h4>
+                    <p class="text-[9px] md:text-[10px] text-tranzking-textSecondary uppercase tracking-widest font-bold">Total Distance (KM)</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <h4 class="text-4xl md:text-5xl font-black text-white mb-2" id="statOrbits">0</h4>
+                    <p class="text-[9px] md:text-[10px] text-tranzking-textSecondary uppercase tracking-widest font-bold">Orbits Completed</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <h4 class="text-4xl md:text-5xl font-black text-white mb-2" id="statNextOrbit">0</h4>
+                    <p class="text-[9px] md:text-[10px] text-tranzking-textSecondary uppercase tracking-widest font-bold">KM To Next Orbit</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <h4 class="text-4xl md:text-5xl font-black text-tranzking-distance mb-2" id="statJobs">0</h4>
+                    <p class="text-[9px] md:text-[10px] text-tranzking-textSecondary uppercase tracking-widest font-bold">Jobs Delivered</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BEHIND THE WHEEL / YOUTUBE SECTION -->
+    <section class="max-w-6xl mx-auto px-6 py-24 reveal">
+        <div class="text-center mb-10">
+            <span class="text-[10px] text-tranzking-accent font-bold uppercase tracking-widest">Behind The Wheel</span>
+            <h2 class="text-3xl md:text-4xl font-black text-white mt-2 uppercase tracking-tight">See the fleet in motion</h2>
+            <p class="text-sm text-tranzking-textSecondary mt-3 max-w-2xl mx-auto">A glimpse of how TranzKing takes on the asphalt — convoys, events, and the rhythm of the road.</p>
+        </div>
+        <div class="w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border border-tranzking-muted/30 shadow-[0_0_30px_rgba(6,182,212,0.1)] bg-tranzking-card p-2 md:p-3 reveal delay-100">
+            <div class="aspect-video w-full rounded-xl overflow-hidden relative bg-tranzking-main border border-tranzking-muted/20">
+                <!-- IMPORTANT: data-video-asset added to let api.js dynamically inject the YouTube link! -->
+                <iframe 
+                    data-video-asset="PROMO_VIDEO"
+                    class="absolute top-0 left-0 w-full h-full"
+                    src="https://www.youtube.com/embed/ScMzIvxBSi4?autoplay=0&rel=0&modestbranding=1" 
+                    title="tranzking Fleet in Motion" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- JOIN THE FLEET -->
+    <!-- ADDED ID="join-fleet" FOR SMOOTH SCROLLING -->
+    <section id="join-fleet" class="py-24 px-6 bg-tranzking-main border-y border-tranzking-muted/20 reveal">
+        <div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <p class="text-[10px] font-black text-yellow-500 tracking-[0.2em] uppercase mb-4">Join The Fleet</p>
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">Ready to drive with <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-amber-700">tranzking Division?</span></h2>
+                <p class="text-tranzking-textSecondary mb-10 text-sm md:text-base leading-relaxed">Become part of the community and experience professional virtual trucking — convoys, dynamic tours, and a leaderboard that rewards every kilometre.</p>
+                
+                <ul class="space-y-4 mb-10 text-sm text-tranzking-textSecondary font-medium">
+                    <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="text-yellow-500 w-5 h-5 shrink-0"></i> Follow TruckersMP rules and drive realistically.</li>
+                    <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="text-yellow-500 w-5 h-5 shrink-0"></i> Keep active — join events and hit the monthly minimum.</li>
+                    <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="text-yellow-500 w-5 h-5 shrink-0"></i> Be respectful in Discord and on the road, always.</li>
+                </ul>
+
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="openApplyModal()" class="px-8 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl font-black tracking-wider uppercase text-sm transition-all shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center justify-center gap-2">
+                        Apply Now <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="secureDownloadLogin()" class="px-6 py-3.5 bg-transparent border border-tranzking-muted hover:border-tranzking-accent hover:text-tranzking-accent text-white rounded-xl text-sm font-black tracking-wider uppercase transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Download Tracker
+                    </button>
+                </div>
+            </div>
+            <div class="bg-[#0a0e14] border border-tranzking-muted/30 p-8 md:p-10 rounded-2xl shadow-2xl space-y-8 relative overflow-hidden reveal delay-100">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-500/5 rounded-full blur-3xl"></div>
+                <div class="relative z-10">
+                    <h4 class="text-yellow-500 font-black text-sm tracking-wide mb-2">Fast approval</h4>
+                    <p class="text-xs text-tranzking-textSecondary leading-relaxed">Applications reviewed within a day or two. Get on the road and start logging jobs faster.</p>
+                </div>
+                <div class="h-px w-full bg-tranzking-muted/20 relative z-10"></div>
+                <div class="relative z-10">
+                    <h4 class="text-yellow-500 font-black text-sm tracking-wide mb-2">Real leaderboard</h4>
+                    <p class="text-xs text-tranzking-textSecondary leading-relaxed">Every job counts toward your rank and our overall tranzking division standing. Climb to the top.</p>
+                </div>
+                <div class="h-px w-full bg-tranzking-muted/20 relative z-10"></div>
+                <div class="relative z-10">
+                    <h4 class="text-yellow-500 font-black text-sm tracking-wide mb-2">Active community</h4>
+                    <p class="text-xs text-tranzking-textSecondary leading-relaxed">Regular convoys, custom division events, dynamic European tours, and a highly active Discord.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEWS & GALLERY SECTIONS -->
+    <section id="news" class="py-24 px-6 bg-[#030407] hidden border-b border-tranzking-muted/20 reveal">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+                <div>
+                    <span class="text-tranzking-accent font-black tracking-[0.2em] text-[10px] uppercase mb-1 block">Latest Dispatches</span>
+                    <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight">Division News</h2>
+                </div>
+                <a href="news.html" class="text-xs font-bold text-tranzking-accent hover:text-white flex items-center gap-2 uppercase tracking-wider transition-colors">
+                    View All News <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+            <div id="newsContainer" class="grid md:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-24 px-6 bg-tranzking-main hidden border-b border-tranzking-muted/20 reveal">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+                <div>
+                    <span class="text-tranzking-distance font-black tracking-[0.2em] text-[10px] uppercase mb-1 block">On The Road</span>
+                    <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight">Fleet Gallery</h2>
+                </div>
+                <a href="gallery.html" class="text-xs font-bold text-tranzking-distance hover:text-white flex items-center gap-2 uppercase tracking-wider transition-colors">
+                    View All Gallery <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+            <div id="galleryContainer" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#010204] py-16 px-6 relative z-10">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="flex items-center gap-4">
+                <!-- Dynamic Asset Tag Added Here -->
+                <img data-asset="TNL_LOGO" src="https://i.postimg.cc/J0SNjyt1/TNL-logo.png" alt="tranzking" class="w-10 h-10 rounded border border-yellow-500/30 p-0.5 object-cover">
+                <div>
+                    <h2 class="text-white font-black text-xl tracking-widest uppercase leading-none">Tamilnadu Logistics</h2>
+                    <span class="text-[9px] font-bold text-tranzking-textSecondary tracking-widest uppercase mt-1">Official Parent VTC</span>
+                </div>
+            </div>
+            <div class="text-xs text-tranzking-textSecondary font-medium">
+                Made with <span class="text-red-500 mx-1">♥</span> by TNL Team &middot; © 2026 All Rights Reserved
+            </div>
+        </div>
+    </footer>
+
+    <!-- CREW LOGIN MODAL (UPDATED FOR 3 ROLES + RED ERROR TEXT) -->
+    <div id="authModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm transition-opacity">
+        <div class="bg-tranzking-card border border-tranzking-muted/50 p-8 rounded-2xl shadow-2xl relative w-full max-w-sm text-center">
+            <div class="w-16 h-16 rounded-full bg-tranzking-accent/10 border border-tranzking-accent/30 mx-auto mb-6 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+                <i data-lucide="lock" class="text-tranzking-accent w-7 h-7"></i>
+            </div>
+            <h3 class="text-2xl font-black text-white mb-2 tracking-tight">Security Gateway</h3>
+            <p class="text-xs text-tranzking-textSecondary mb-8 font-medium">Enter division passcode to access the VTC dashboard.</p>
+            
+            <input type="password" id="passcode" placeholder="Enter Passcode..." class="w-full bg-[#0a0e14] border border-tranzking-muted/50 p-3.5 rounded-lg text-white mb-2 text-center tracking-widest text-sm font-bold outline-none focus:border-tranzking-accent focus:ring-1 focus:ring-tranzking-accent transition-all">
+            
+            <!-- Hidden Error Text -->
+            <p id="loginErrorMsg" class="text-red-500 text-xs font-bold mb-4 hidden tracking-wider uppercase">Invalid Passcode!</p>
+            
+            <div class="flex gap-4">
+                <button onclick="closeAuthModal()" class="flex-1 py-3.5 bg-transparent border border-tranzking-muted text-tranzking-textSecondary hover:text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">Cancel</button>
+                <!-- Centralized authentication call to home.js -->
+                <button onclick="authenticateCrew()" class="flex-1 py-3.5 bg-tranzking-accent hover:bg-tranzking-accent/80 text-[#05070a] shadow-[0_0_15px_rgba(6,182,212,0.3)] rounded-lg font-black text-xs uppercase tracking-wider transition-all">Authenticate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION MODAL -->
+    <div id="applyModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/90 backdrop-blur-sm transition-opacity">
+        <div class="bg-tranzking-card border border-yellow-500/30 p-8 md:p-10 rounded-2xl shadow-2xl relative w-full max-w-lg mx-4">
+            <h3 class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">Join tranzking Division</h3>
+            <p class="text-sm text-tranzking-textSecondary mb-8">Fill out your details. An admin will review and contact you on Discord for an interview.</p>
+            <form id="applicationForm" onsubmit="submitApplication(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="appName" placeholder="Your Name" required class="w-full bg-[#0a0e14] border border-tranzking-muted/50 p-3.5 rounded-lg text-white text-sm outline-none focus:border-yellow-500">
+                    <input type="text" id="appDiscord" placeholder="Discord Username" required class="w-full bg-[#0a0e14] border border-tranzking-muted/50 p-3.5 rounded-lg text-white text-sm outline-none focus:border-yellow-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="appSteam" placeholder="Steam ID" required class="w-full bg-[#0a0e14] border border-tranzking-muted/50 p-3.5 rounded-lg text-white text-sm outline-none focus:border-yellow-500">
+                    <input type="text" id="appTMP" placeholder="TruckersMP ID" required class="w-full bg-[#0a0e14] border border-tranzking-muted/50 p-3.5 rounded-lg text-white text-sm outline-none focus:border-yellow-500">
+                </div>
+                <textarea id="appReason" placeholder="Why do you want to join our division?" required rows="3" class="w-full bg-[#0a0e14] border border-tranzking-muted/50 p-3.5 rounded-lg text-white text-sm outline-none focus:border-yellow-500"></textarea>
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="closeApplyModal()" class="flex-1 py-3.5 bg-transparent border border-tranzking-muted text-tranzking-textSecondary hover:text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-colors">Cancel</button>
+                    <button type="submit" id="btnSubmitApp" class="flex-[2] py-3.5 bg-yellow-500 hover:bg-yellow-400 text-black shadow-[0_0_15px_rgba(234,179,8,0.3)] rounded-lg font-black text-xs uppercase tracking-wider transition-all">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NEWS DETAILS MODAL -->
+    <div id="newsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-tranzking-card border border-tranzking-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div id="newsModalImageContainer" class="w-full h-48 shrink-0 bg-tranzking-main relative bg-cover bg-center border-b border-tranzking-muted/30">
+                <div class="absolute inset-0 bg-gradient-to-t from-tranzking-card to-transparent"></div>
+                <button onclick="closeNewsModal()" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 -mt-10 relative z-10">
+                <span id="newsModalCategory" class="inline-block px-2.5 py-1 bg-tranzking-accent/20 text-tranzking-accent border border-tranzking-accent/30 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
+                <h2 id="newsModalTitle" class="text-xl sm:text-2xl font-black text-white leading-tight mb-3">News Title Here</h2>
+                <p id="newsModalDesc" class="text-tranzking-textSecondary text-sm mb-6 leading-relaxed">Full description goes here...</p>
+                <a id="newsModalLink" href="#" target="_blank" class="w-full block text-center bg-tranzking-accent hover:opacity-90 text-[#05070a] font-bold py-3 rounded-lg transition-colors shadow-lg">Open Link <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Scripts -->
+    <script>
+        function openNewsModal(title, category, image, desc, link) {
+            document.getElementById('newsModalTitle').textContent = title;
+            document.getElementById('newsModalCategory').textContent = category;
+            document.getElementById('newsModalDesc').textContent = desc;
+            
+            let imgContainer = document.getElementById('newsModalImageContainer');
+            if (image && image.startsWith('http')) {
+                imgContainer.style.backgroundImage = `url('${image}')`;
+            } else {
+                imgContainer.style.backgroundImage = `linear-gradient(to right, #05070a, #0c1017)`;
+            }
+            
+            let linkBtn = document.getElementById('newsModalLink');
+            if (link && link !== '#' && link.startsWith('http')) {
+                linkBtn.href = link;
+                linkBtn.style.display = 'block';
+            } else {
+                linkBtn.style.display = 'none';
+            }
+
+            let modal = document.getElementById('newsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function closeNewsModal() {
+            let modal = document.getElementById('newsModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let modal = document.getElementById('newsModal');
+            if(modal) {
+                modal.addEventListener('click', function(e) {
+                    if(e.target === this) closeNewsModal();
+                });
+            }
+        });
+    </script>
+
+    <!-- BOOT SCRIPTS (Fetch Core, API, and Home) -->
+    <script src="core.js"></script>
+    <script src="api.js"></script>
+    <script src="home.js"></script>
+    
+    <!-- Dynamic Assets Trigger -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof fetchSiteAssets === 'function') {
+                fetchSiteAssets();
+            }
+        });
+    </script>
+</body>
+</html>

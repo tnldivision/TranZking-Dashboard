@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRANZKING - Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tranzking: { 
+                            main: '#05070a', card: '#0c1017', hover: '#161f30',
+                            accent: '#38bdf8', muted: '#0284c7', textPrimary: '#f8fafc',
+                            textSecondary: '#94a3b8', distance: '#4ade80', revenue: '#facc15',
+                            active: '#22c55e', admin: '#ef4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { background-color: #05070a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #05070a; }
+        ::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
+        .tab-active { background-color: #38bdf8; color: #05070a; font-weight: bold; border-color: #38bdf8; }
+        .tab-inactive { background-color: #0c1017; color: #94a3b8; border-color: rgba(2, 132, 199, 0.3); }
+        .tab-inactive:hover { background-color: #161f30; color: #f8fafc; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #161f30; border-radius: 4px; }
+        .custom-modal { transition: opacity 0.3s ease-out; }
+        .custom-modal-content { transition: transform 0.3s ease-out; }
+        .modal-open.custom-modal { opacity: 1; pointer-events: auto; }
+        .modal-open .custom-modal-content { transform: scale(1) translateY(0); }
+        .modal-closed.custom-modal { opacity: 0; pointer-events: none; }
+        .modal-closed .custom-modal-content { transform: scale(0.95) translateY(10px); }
+        .collapse-content { transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
+        .collapse-content.expanded { max-height: 5000px; opacity: 1; }
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top: 3px solid #ef4444; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Premium Filter Calendar Fix */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="month"]::-webkit-calendar-picker-indicator {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 relative overflow-x-hidden">
+
+    <div class="-mx-4 md:-mx-8 -mt-4 md:-mt-8 px-4 md:px-8 py-3.5 mb-6 border-b border-tranzking-muted/20 bg-[#0a0d14] flex items-center justify-center gap-3 shadow-lg z-20 relative">
+        <img data-asset="TNL_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531694103857991750/TNL_logo.png?ex=6a6a24cb&is=6a68d34b&hm=d0f80f556b08217e00ce199cbfb1ea809e39e9be13baff35842a62c4e7ada586" alt="TNL Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-yellow-500/50 object-cover shadow-[0_0_15px_rgba(250,204,21,0.2)]">
+        <h1 class="text-lg md:text-xl font-black text-tranzking-textPrimary tracking-[0.2em] uppercase">Tamilnadu Logistics</h1>
+    </div>
+
+    <header data-bg-asset="DASHBOARD_BANNER" class="relative flex flex-col md:flex-row justify-between items-center mb-8 p-6 md:p-8 rounded-2xl bg-tranzking-card bg-cover bg-center border border-tranzking-muted/30 shadow-2xl overflow-hidden z-10">
+        <!-- Cinematic Dark Overlay for Text Readability -->
+        <div class="absolute inset-0 bg-gradient-to-r from-[#05070a] via-[#05070a]/80 to-[#05070a]/30 z-0"></div>
+
+        <div class="flex items-center gap-4 z-10 w-full md:w-auto justify-center md:justify-start">
+            <div class="p-1.5 rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.2)] bg-tranzking-accent/10 border border-tranzking-accent/30 relative">
+                <img data-asset="tranzking_LOGO" src="https://cdn.discordapp.com/attachments/1497198269120381021/1531640548337909880/LOGO_2.png?ex=6a69f2eb&is=6a68a16b&hm=1799fec0be913760da0d600e565ae743f726713d58ef67b61c3eb89d4c707d01" alt="tranzking Logo" class="w-12 h-12 md:w-14 md:h-14 rounded-lg object-cover">
+            </div>
+            <div class="text-center md:text-left drop-shadow-md">
+                <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white uppercase">TRANZKING</h2>
+                <p class="text-tranzking-accent text-xs tracking-widest uppercase mt-0.5 font-bold">Dashboard Portal</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 z-10 mt-4 md:mt-0">
+            <button id="adminToolsBtn" onclick="window.location.href='admin.html'" class="admin-only hidden bg-tranzking-admin/80 hover:bg-tranzking-admin text-white border border-red-400/50 px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-wider items-center gap-2 transition-colors shadow-[0_0_15px_rgba(239,68,68,0.4)] backdrop-blur-sm">
+                <i data-lucide="shield-alert" class="w-4 h-4 inline-block"></i> Admin Panel
+            </button>
+            <button onclick="logout()" class="bg-black/50 hover:bg-red-500/20 hover:text-red-400 border border-white/10 hover:border-red-500/50 px-3 py-2.5 rounded-lg text-white transition-all backdrop-blur-sm" title="Logout">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+            <div class="bg-black/50 px-4 py-2.5 rounded-lg border border-white/10 flex items-center gap-2.5 shadow-sm backdrop-blur-sm">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tranzking-active opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tranzking-active shadow-[0_0_8px_#22c55e]"></span>
+                </span>
+                <span id="syncStatus" class="text-xs font-semibold text-white tracking-wide">Syncing with Cloud...</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-wrap gap-2 mb-8">
+        <button onclick="switchTab('overview')" id="btn-overview" class="tab-active px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border flex-1 sm:flex-none justify-center"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
+        <button onclick="switchTab('logs')" id="btn-logs" class="tab-inactive px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border flex-1 sm:flex-none justify-center"><i data-lucide="map-pin" class="w-4 h-4"></i> Job Logs</button>
+        <button onclick="switchTab('events')" id="btn-events" class="tab-inactive px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border flex-1 sm:flex-none justify-center"><i data-lucide="calendar-days" class="w-4 h-4"></i> Event Records</button>
+        <button onclick="switchTab('campaign')" id="btn-campaign" class="tab-inactive px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border flex-1 sm:flex-none justify-center"><i data-lucide="route" class="w-4 h-4"></i> Tour</button>
+        <button onclick="switchTab('liveriders')" id="btn-liveriders" class="tab-inactive px-4 py-2.5 rounded-lg flex items-center gap-2 text-sm transition-all shadow-md border flex-1 sm:flex-none justify-center"><i data-lucide="radio" class="w-4 h-4 text-red-500 animate-pulse"></i> Live Riders</button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW DASHBOARD -->
+    <div id="tab-overview" class="block">
+        <div class="flex flex-col xl:flex-row justify-between items-center bg-tranzking-card p-4 rounded-xl border border-tranzking-muted/30 shadow-lg mb-6 gap-4">
+            <h2 class="text-sm font-bold text-tranzking-textPrimary flex items-center gap-2 w-full xl:w-auto"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tranzking-accent"></i> Overall Division Stats</h2>
+            
+            <!-- PREMIUM VTC FILTER (OVERVIEW) -->
+            <div class="tranzking-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto justify-end" data-target="overview">
+                <div class="flex items-center bg-[#05070a] border border-tranzking-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
+                    <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-revenue bg-[#161f30] border-r border-tranzking-muted/30 transition-colors" data-mode="ALL">All time</button>
+                    <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-textSecondary hover:text-tranzking-textPrimary bg-[#05070a] border-r border-tranzking-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
+                    <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-textSecondary hover:text-tranzking-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
+                </div>
+                <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
+                    <label class="picker-label absolute -top-2 left-3 bg-tranzking-card px-1.5 text-[10px] text-tranzking-revenue font-black tracking-widest z-10">MONTH</label>
+                    <div class="relative w-full h-full border border-tranzking-revenue/50 hover:border-tranzking-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
+                        <span class="picker-display text-sm font-bold text-tranzking-textPrimary w-full text-left">Select...</span>
+                        <i data-lucide="calendar" class="w-4 h-4 text-tranzking-textSecondary ml-auto"></i>
+                        <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                        <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 mb-8">
+            <div class="bg-tranzking-card p-4 rounded-xl border border-tranzking-muted/30 shadow-xl flex flex-col justify-center hover:border-tranzking-accent/50 transition-colors"><p class="text-tranzking-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Total Distance</p><h2 class="text-2xl sm:text-3xl font-black text-tranzking-textPrimary"><span id="statDistance">0</span> <span class="text-xs font-normal text-tranzking-textSecondary">km</span></h2></div>
+            <div class="bg-tranzking-card p-4 rounded-xl border border-tranzking-muted/30 shadow-xl flex flex-col justify-center hover:border-tranzking-accent/50 transition-colors"><p class="text-tranzking-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Completed Waybills</p><h2 id="statJobs" class="text-2xl sm:text-3xl font-black text-tranzking-textPrimary">0</h2></div>
+            <div class="bg-tranzking-card p-4 rounded-xl border border-tranzking-muted/30 shadow-xl flex flex-col justify-center hover:border-tranzking-accent/50 transition-colors"><p class="text-tranzking-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Company Revenue</p><h2 class="text-2xl sm:text-3xl font-black text-tranzking-textPrimary">€ <span id="statRevenue">0</span></h2></div>
+            <div class="bg-tranzking-card p-4 rounded-xl border border-tranzking-muted/30 shadow-xl flex flex-col justify-center hover:border-tranzking-accent/50 transition-colors"><p class="text-tranzking-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1">Active Drivers</p><h2 id="statDrivers" class="text-2xl sm:text-3xl font-black text-tranzking-textPrimary">0</h2></div>
+            <div class="bg-tranzking-card p-4 rounded-xl border border-tranzking-muted/30 shadow-xl flex flex-col justify-center relative overflow-hidden hover:border-tranzking-accent/50 transition-colors"><div class="absolute -right-4 -bottom-4 opacity-5"><i data-lucide="calendar-check" class="w-20 h-20 text-tranzking-textPrimary"></i></div><p class="text-tranzking-textSecondary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1 relative z-10">Division Events</p><h2 id="statEvents" class="text-2xl sm:text-3xl font-black text-tranzking-textPrimary relative z-10">0</h2></div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-tranzking-card p-6 rounded-xl border border-tranzking-muted/30 shadow-xl"><h3 class="text-base font-bold text-tranzking-textPrimary mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="w-4 h-4 text-tranzking-distance"></i> Distance Leaderboard (KM)</h3><div class="relative h-56 w-full"><canvas id="kmBarChart"></canvas></div></div>
+            <div class="bg-tranzking-card p-6 rounded-xl border border-tranzking-muted/30 shadow-xl"><h3 class="text-base font-bold text-tranzking-textPrimary mb-4 flex items-center gap-2"><i data-lucide="award" class="w-4 h-4 text-tranzking-accent"></i> Event Attendance Chart</h3><div class="relative h-56 w-full"><canvas id="eventBarChart"></canvas></div></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="bg-tranzking-card p-6 rounded-xl border border-tranzking-muted/30 shadow-xl flex flex-col h-[350px]"><h3 class="text-base font-bold text-tranzking-textPrimary mb-4 flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-tranzking-revenue"></i> Top Drivers by KM</h3><div id="kmLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div></div>
+            <div class="bg-tranzking-card p-6 rounded-xl border border-tranzking-muted/30 shadow-xl flex flex-col h-[350px]"><h3 class="text-base font-bold text-tranzking-textPrimary mb-4 flex items-center gap-2"><i data-lucide="star" class="w-4 h-4 text-tranzking-accent"></i> Top Drivers by Events</h3><div id="eventLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div></div>
+            <div class="bg-tranzking-card p-6 rounded-xl border border-tranzking-muted/30 shadow-xl flex flex-col h-[350px]"><div class="flex justify-between items-center mb-4"><h3 class="text-base font-bold text-tranzking-textSecondary flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Hall of Frame</h3><span class="text-[9px] bg-tranzking-main border border-tranzking-muted/20 px-2 py-1 rounded text-tranzking-textSecondary uppercase tracking-widest">Past Members</span></div><div id="pastLeaderboardList" class="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-1"></div></div>
+        </div>
+    </div>
+
+    <!-- TAB 2: JOB LOGS -->
+    <div id="tab-logs" class="hidden">
+        <div class="bg-tranzking-card p-6 rounded-xl border border-tranzking-muted/30 shadow-xl mb-6">
+            <h3 class="text-base font-bold text-tranzking-textPrimary mb-4 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4 text-tranzking-accent"></i> Search Job Logs</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="col-span-2 lg:col-span-1">
+                    <label class="block text-xs font-semibold text-tranzking-textSecondary mb-2">Select Driver</label>
+                    <select id="filterDriver" onchange="applyLogFilters()" class="w-full bg-tranzking-main border border-tranzking-muted/50 text-tranzking-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Drivers</option></select>
+                </div>
+                
+                <div class="col-span-2 lg:col-span-2">
+                    <label class="block text-xs font-semibold text-tranzking-textSecondary mb-2">Time Period</label>
+                    <div class="tranzking-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full" data-target="logs">
+                        <div class="flex items-center bg-[#05070a] border border-tranzking-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
+                            <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-revenue bg-[#161f30] border-r border-tranzking-muted/30 transition-colors" data-mode="ALL">All time</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-textSecondary hover:text-tranzking-textPrimary bg-[#05070a] border-r border-tranzking-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-textSecondary hover:text-tranzking-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
+                        </div>
+                        <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
+                            <label class="picker-label absolute -top-2 left-3 bg-tranzking-card px-1.5 text-[10px] text-tranzking-revenue font-black tracking-widest z-10">MONTH</label>
+                            <div class="relative w-full h-full border border-tranzking-revenue/50 hover:border-tranzking-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
+                                <span class="picker-display text-sm font-bold text-tranzking-textPrimary w-full text-left">Select...</span>
+                                <i data-lucide="calendar" class="w-4 h-4 text-tranzking-textSecondary ml-auto"></i>
+                                <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                                <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-1 lg:col-span-1">
+                    <label class="block text-xs font-semibold text-tranzking-textSecondary mb-2">Rows</label>
+                    <select id="jobPageLimit" onchange="applyLogFilters()" class="w-full bg-tranzking-main border border-tranzking-muted/50 text-tranzking-textPrimary text-sm rounded-lg h-10 px-3 outline-none">
+                        <option value="10" selected>10 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+                
+                <div class="col-span-1 bg-tranzking-main rounded-lg p-3 border border-tranzking-muted/30 flex flex-col justify-center items-center">
+                    <p class="text-xs text-tranzking-textSecondary font-semibold mb-1">Filtered Dist.</p>
+                    <p id="filteredTotalKm" class="text-lg font-bold text-tranzking-distance">0 km</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-tranzking-card rounded-xl border border-tranzking-muted/30 shadow-xl overflow-hidden flex flex-col">
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-tranzking-hover text-tranzking-textSecondary text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-tranzking-muted/30">
+                            <th class="p-3 sm:p-4">Time</th>
+                            <th class="p-3 sm:p-4">Driver</th>
+                            <th class="p-3 sm:p-4">Route</th>
+                            <th class="p-3 sm:p-4">Cargo</th>
+                            <th class="p-3 sm:p-4">Distance</th>
+                            <th class="p-3 sm:p-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="filteredJobTableBody" class="text-xs divide-y divide-tranzking-muted/10 font-medium"></tbody>
+                </table>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-tranzking-main border-t border-tranzking-muted/30">
+                <button id="btnPrevPage" onclick="prevJobPage()" class="flex items-center gap-2 px-4 py-2 bg-tranzking-card border border-tranzking-muted/30 rounded-lg text-sm text-tranzking-textPrimary hover:bg-tranzking-hover disabled:opacity-50 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
+                <span id="jobPageInfo" class="text-xs font-bold text-tranzking-textSecondary tracking-wider uppercase">Page 1 of 1</span>
+                <button id="btnNextPage" onclick="nextJobPage()" class="flex items-center gap-2 px-4 py-2 bg-tranzking-card border border-tranzking-muted/30 rounded-lg text-sm text-tranzking-textPrimary hover:bg-tranzking-hover disabled:opacity-50 transition-colors">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: EVENT RECORDS -->
+    <div id="tab-events" class="hidden">
+        <div class="bg-tranzking-card p-6 rounded-xl border border-tranzking-muted/30 shadow-xl mb-6">
+            <h3 class="text-base font-bold text-tranzking-textPrimary mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4 text-tranzking-accent"></i> Filter Event Records</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
+                <div class="col-span-2 lg:col-span-1">
+                    <label class="block text-xs font-semibold text-tranzking-textSecondary mb-2">Category</label>
+                    <select id="filterEventCategory" onchange="applyEventFilters()" class="w-full bg-tranzking-main border border-tranzking-muted/50 text-tranzking-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Events</option></select>
+                </div>
+                <div class="col-span-2 lg:col-span-1">
+                    <label class="block text-xs font-semibold text-tranzking-textSecondary mb-2">Select Driver</label>
+                    <select id="filterEventDriver" onchange="applyEventFilters()" class="w-full bg-tranzking-main border border-tranzking-muted/50 text-tranzking-textPrimary text-sm rounded-lg h-10 px-3 outline-none"><option value="ALL">All Drivers</option></select>
+                </div>
+
+                <div class="col-span-2 lg:col-span-2">
+                    <label class="block text-xs font-semibold text-tranzking-textSecondary mb-2">Time Period</label>
+                    <div class="tranzking-vtc-filter flex flex-col sm:flex-row items-center gap-3 w-full" data-target="events">
+                        <div class="flex items-center bg-[#05070a] border border-tranzking-muted/30 rounded-lg overflow-hidden h-10 shadow-lg w-full sm:w-auto">
+                            <button class="filter-tab active flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-revenue bg-[#161f30] border-r border-tranzking-muted/30 transition-colors" data-mode="ALL">All time</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-textSecondary hover:text-tranzking-textPrimary bg-[#05070a] border-r border-tranzking-muted/30 transition-colors" data-mode="MONTHLY">Monthly</button>
+                            <button class="filter-tab flex-1 sm:flex-none px-4 h-full text-xs font-bold text-tranzking-textSecondary hover:text-tranzking-textPrimary bg-[#05070a] transition-colors flex items-center justify-center" data-mode="DAILY">Daily</button>
+                        </div>
+                        <div class="picker-container hidden relative h-10 w-full sm:w-48 shrink-0">
+                            <label class="picker-label absolute -top-2 left-3 bg-tranzking-card px-1.5 text-[10px] text-tranzking-revenue font-black tracking-widest z-10">MONTH</label>
+                            <div class="relative w-full h-full border border-tranzking-revenue/50 hover:border-tranzking-revenue rounded-lg bg-[#0a0d14] flex items-center px-3 overflow-hidden transition-colors shadow-lg cursor-pointer">
+                                <span class="picker-display text-sm font-bold text-tranzking-textPrimary w-full text-left">Select...</span>
+                                <i data-lucide="calendar" class="w-4 h-4 text-tranzking-textSecondary ml-auto"></i>
+                                <input type="month" class="month-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                                <input type="date" class="date-input hidden absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-1 lg:col-span-1">
+                    <label class="block text-xs font-semibold text-tranzking-textSecondary mb-2">Rows</label>
+                    <select id="eventPageLimit" onchange="applyEventFilters()" class="w-full bg-tranzking-main border border-tranzking-muted/50 text-tranzking-textPrimary text-sm rounded-lg h-10 px-3 outline-none">
+                        <option value="10" selected>10 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="100">100 / page</option>
+                    </select>
+                </div>
+                
+                <div class="col-span-1 bg-tranzking-main rounded-lg p-3 border border-tranzking-muted/30 flex flex-col justify-center items-center">
+                    <p class="text-xs text-tranzking-textSecondary font-semibold mb-1">Total Events</p>
+                    <p id="filteredTotalEvents" class="text-lg font-bold text-tranzking-accent">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-tranzking-card rounded-xl border border-tranzking-muted/30 shadow-xl overflow-hidden flex flex-col">
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-tranzking-hover text-tranzking-textSecondary text-[10px] sm:text-xs font-semibold uppercase tracking-wider border-b border-tranzking-muted/30">
+                            <th class="p-3 sm:p-4">Date</th>
+                            <th class="p-3 sm:p-4">Category</th>
+                            <th class="p-3 sm:p-4">Event Name</th>
+                            <th class="p-3 sm:p-4 text-center">Attendance</th>
+                            <th class="p-3 sm:p-4 text-right">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="filteredEventTableBody" class="text-xs divide-y divide-tranzking-muted/10 font-medium">
+                        <tr><td colspan="5" class="p-6 text-center text-tranzking-textSecondary">Fetching event records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-tranzking-main border-t border-tranzking-muted/30">
+                <button id="btnPrevEventPage" onclick="prevEventPage()" class="flex items-center gap-2 px-4 py-2 bg-tranzking-card border border-tranzking-muted/30 rounded-lg text-sm text-tranzking-textPrimary hover:bg-tranzking-hover disabled:opacity-50 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i> Prev</button>
+                <span id="eventPageInfo" class="text-xs font-bold text-tranzking-textSecondary tracking-wider uppercase">Page 1 of 1</span>
+                <button id="btnNextEventPage" onclick="nextEventPage()" class="flex items-center gap-2 px-4 py-2 bg-tranzking-card border border-tranzking-muted/30 rounded-lg text-sm text-tranzking-textPrimary hover:bg-tranzking-hover disabled:opacity-50 transition-colors">Next <i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: EUROPEAN TOUR CAMPAIGN (DYNAMIC) -->
+    <div id="tab-campaign" class="hidden">
+        <div id="dynamic-campaign-container" class="space-y-8">
+            <div class="flex flex-col items-center justify-center py-20 opacity-50">
+                <div class="loader mb-4"></div>
+                <p class="text-tranzking-textSecondary font-bold tracking-widest uppercase text-sm">Syncing Tour Manifests...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 5: LIVE RIDERS -->
+    <div id="tab-liveriders" class="hidden">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+            <div>
+                <h2 class="text-2xl md:text-3xl font-black text-tranzking-textPrimary uppercase tracking-tight flex items-center gap-3"><span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span> Live Division Riders</h2>
+                <p class="text-tranzking-textSecondary text-sm mt-1">Real-time tracking of active deliveries currently in progress.</p>
+            </div>
+            <div class="bg-tranzking-card px-5 py-2.5 rounded-lg border border-tranzking-muted/30 flex items-center gap-2.5 shadow-xl shrink-0"><i data-lucide="truck" class="w-5 h-5 text-tranzking-accent"></i><span class="text-sm font-bold text-tranzking-textPrimary"><span id="activeRiderCount">0</span> Riders on Duty</span></div>
+        </div>
+        <div id="liveRidersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <!-- MODALS -->
+    
+    <!-- 🔴 PREMIUM JOB DETAILS MODAL (ENHANCED UI) 🔴 -->
+    <div id="jobDetailsModal" class="custom-modal fixed inset-0 z-[100] flex items-center justify-center modal-closed hidden bg-black/95 backdrop-blur-md">
+        <div class="absolute inset-0 cursor-pointer" onclick="closeJobModal()"></div>
+        <div class="custom-modal-content relative z-10 bg-[#0a0e14] border border-tranzking-muted/30 w-full sm:max-w-md md:max-w-2xl sm:rounded-3xl h-[95vh] sm:h-[85vh] overflow-hidden flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.8)]">
+            
+            <!-- Cinematic Header Image Area -->
+            <div data-bg-asset="JOB_MODAL_BG" class="h-32 sm:h-48 bg-[#05070a] relative w-full shrink-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&q=80');">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0e14] via-[#0a0e14]/70 to-transparent z-10"></div>
+                
+                <div class="absolute top-4 left-4 z-20">
+                    <button onclick="closeJobModal()" class="flex items-center gap-2 px-3 py-1.5 bg-black/40 hover:bg-black/80 border border-white/10 rounded-full text-white text-xs font-bold tracking-wider uppercase transition-colors backdrop-blur-sm">
+                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back
+                    </button>
+                </div>
+                
+                <!-- Live Delivered Badge -->
+                <div class="absolute top-4 right-4 z-20">
+                    <span class="px-2.5 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_10px_rgba(34,197,94,0.2)] backdrop-blur-md">
+                       <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span> Delivered
+                    </span>
+                </div>
+
+                <p id="modalJobId" class="absolute bottom-16 left-6 md:left-8 z-20 text-[10px] text-yellow-500 font-black tracking-widest uppercase shadow-sm drop-shadow-md">JOB #tranzking-XXXXXX</p>
+                <h2 id="modalRoute" class="absolute bottom-6 left-6 md:left-8 z-20 text-3xl sm:text-4xl font-black text-white leading-none tracking-tight drop-shadow-lg">City A <span class="text-tranzking-muted mx-1 font-light">→</span> City B</h2>
+                <p id="modalCargoSub" class="absolute bottom-2 left-6 md:left-8 z-20 text-xs text-tranzking-textSecondary font-bold drop-shadow-md">Cargo Name • 0 km driven</p>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+                
+                <!-- Glowing Driver Profile -->
+                <div class="flex items-center justify-between bg-tranzking-card/50 border border-yellow-500/20 p-4 sm:p-5 rounded-2xl relative overflow-hidden group hover:border-yellow-500/40 transition-colors">
+                    <div class="absolute top-1/2 left-4 -translate-y-1/2 w-16 h-16 bg-yellow-500/10 blur-xl rounded-full"></div>
+                    
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-12 h-12 bg-[#0a0e14] border-2 border-yellow-500/50 rounded-full flex items-center justify-center text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)] group-hover:scale-105 transition-transform">
+                            <i data-lucide="user" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-tranzking-textSecondary uppercase tracking-widest font-black">Driver</p>
+                            <h4 id="modalDriver" class="text-base sm:text-lg font-black text-white uppercase tracking-wider leading-tight">DRIVER NAME</h4>
+                            <div class="flex text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.8)]"><i data-lucide="star" class="w-3 h-3 fill-current"></i><i data-lucide="star" class="w-3 h-3 fill-current"></i><i data-lucide="star" class="w-3 h-3 fill-current"></i><i data-lucide="star" class="w-3 h-3 fill-current"></i><i data-lucide="star" class="w-3 h-3 fill-current"></i></div>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 text-right relative z-10">
+                        <div class="hidden sm:block">
+                            <p class="text-[9px] text-tranzking-textSecondary uppercase tracking-widest font-black">Time</p>
+                            <p id="modalTime" class="text-sm font-bold text-white">0h 0m</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-tranzking-textSecondary uppercase tracking-widest font-black">Revenue</p>
+                            <p id="modalRevenueTop" class="text-base font-black text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.3)]">€0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Route Map Display -->
+                <div class="flex items-center justify-between bg-[#05070a] p-5 sm:p-6 rounded-2xl border border-tranzking-muted/20 relative overflow-hidden">
+                    <!-- Subtle background glow -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-10 bg-tranzking-accent/5 blur-2xl"></div>
+                    
+                    <div class="w-[40%] relative z-10">
+                        <p class="text-[9px] text-yellow-500 uppercase tracking-widest font-black mb-2 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Departure</p>
+                        <p class="text-[10px] text-tranzking-textSecondary font-mono mb-1" id="modalStartTime">00-xxx-0000 00:00 PM</p>
+                        <h5 class="text-base sm:text-lg font-black text-white leading-tight mb-1 truncate" id="modalDepCity">City</h5>
+                        <p class="text-xs text-tranzking-textSecondary font-bold truncate" id="modalDepCo">Company</p>
+                    </div>
+                    
+                    <div class="w-[20%] flex flex-col items-center justify-center relative z-10 hidden sm:flex">
+                        <div class="w-full border-t-2 border-dashed border-tranzking-muted/50 absolute top-1/2 -translate-y-1/2 z-0"></div>
+                        <div class="w-10 h-10 bg-[#0a0e14] border-2 border-tranzking-muted/30 rounded-full flex items-center justify-center z-10 shadow-[0_0_15px_rgba(56,189,248,0.15)] relative">
+                            <i data-lucide="truck" class="w-5 h-5 text-tranzking-accent"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="w-[40%] text-right relative z-10">
+                        <p class="text-[9px] text-yellow-500 uppercase tracking-widest font-black mb-2 flex items-center justify-end gap-1.5">Destination <i data-lucide="flag" class="w-3.5 h-3.5"></i></p>
+                        <p class="text-[10px] text-tranzking-textSecondary font-mono mb-1">Delivered</p>
+                        <h5 class="text-base sm:text-lg font-black text-white leading-tight mb-1 truncate" id="modalDestCity">City</h5>
+                        <p class="text-xs text-tranzking-textSecondary font-bold truncate" id="modalDestCo">Company</p>
+                    </div>
+                </div>
+
+                <!-- Equipment Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-tranzking-card border border-tranzking-muted/20 p-5 rounded-2xl relative overflow-hidden">
+                        <i data-lucide="truck" class="absolute -right-4 -bottom-4 w-20 h-20 text-tranzking-muted/10"></i>
+                        <p class="text-[9px] text-tranzking-textSecondary uppercase tracking-widest font-bold mb-1">Truck Unit</p>
+                        <h5 id="modalTruck" class="text-sm sm:text-base font-black text-white mb-4 relative z-10">Truck Name</h5>
+                        <p class="text-[9px] text-tranzking-textSecondary uppercase tracking-widest font-bold mb-0.5">Truck Damage</p>
+                        <p id="modalDamage" class="text-xs font-bold text-red-400">0%</p>
+                    </div>
+                    <div class="bg-tranzking-card border border-tranzking-muted/20 p-5 rounded-2xl relative overflow-hidden">
+                        <i data-lucide="package" class="absolute -right-4 -bottom-4 w-20 h-20 text-tranzking-muted/10"></i>
+                        <p class="text-[9px] text-tranzking-textSecondary uppercase tracking-widest font-bold mb-1">Trailer</p>
+                        <h5 id="modalTrailer" class="text-sm sm:text-base font-black text-white mb-4 relative z-10">Type</h5>
+                        <p class="text-[9px] text-tranzking-textSecondary uppercase tracking-widest font-bold mb-0.5">Cargo Weight</p>
+                        <p id="modalWeight" class="text-xs font-bold text-white">0 t</p>
+                    </div>
+                </div>
+
+                <!-- Detailed Statistics Grid -->
+                <div class="bg-tranzking-card border border-tranzking-muted/20 rounded-2xl p-5">
+                    <h4 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2 mb-5 pb-3 border-b border-tranzking-muted/20"><i data-lucide="bar-chart-2" class="w-4 h-4 text-tranzking-accent"></i> Telemetry Statistics</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Cargo Name</span><span id="statCargo" class="text-white font-bold text-right">Sand</span></div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Distance Driven</span><span id="statDist" class="text-tranzking-distance font-bold">0 km</span></div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Planned Distance</span><span id="statPlan" class="text-tranzking-textSecondary font-bold">0 km</span></div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Time Taken</span><span id="statTime" class="text-white font-mono font-bold">0h 0m</span></div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Revenue</span><span id="statRev" class="text-yellow-500 font-bold">€0</span></div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Fuel Burnt</span><span id="statFuel" class="text-white font-bold">0 L</span></div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Top Speed</span><span id="statTopSpd" class="text-white font-mono font-bold">0 km/h</span></div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Avg Speed</span><span id="statAvgSpd" class="text-white font-mono font-bold">0 km/h</span></div>
+                        <div class="flex justify-between items-center text-xs"><span class="text-tranzking-textSecondary font-semibold">Auto Parked</span><span id="statPark" class="text-white font-bold">NO</span></div>
+                    </div>
+                </div>
+
+                <!-- Glowing Job Timeline -->
+                <div class="bg-tranzking-card border border-tranzking-muted/20 rounded-2xl p-5">
+                    <h4 class="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2 mb-6"><i data-lucide="clock" class="w-4 h-4 text-yellow-500"></i> Event Timeline</h4>
+                    <div class="relative pl-5 border-l-2 border-tranzking-muted/30 space-y-6" id="modalTimelineContainer">
+                        <!-- Timeline items injected via JS -->
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- EVENT MODAL -->
+    <div id="eventModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center modal-closed hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="closeModal('eventModal')"></div>
+        <div class="custom-modal-content relative z-10 bg-tranzking-card border border-tranzking-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div id="modalImageContainer" class="w-full h-40 sm:h-48 shrink-0 bg-tranzking-main relative bg-cover bg-center border-b border-tranzking-muted/30">
+                <div class="absolute inset-0 bg-gradient-to-t from-tranzking-card to-transparent"></div>
+                <button onclick="closeModal('eventModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 sm:p-7 -mt-10 relative z-10 overflow-y-auto custom-scrollbar flex-1">
+                <span id="modalCategory" class="inline-block px-2.5 py-1 bg-tranzking-accent/20 text-tranzking-accent border border-tranzking-accent/30 text-[10px] font-black uppercase tracking-wider rounded-md mb-2 shadow-sm">CATEGORY</span>
+                <h2 id="modalEventName" class="text-xl sm:text-2xl font-black text-tranzking-textPrimary leading-tight mb-2">Event Name Here</h2>
+                <p class="text-tranzking-textSecondary text-sm flex items-center gap-2 mb-6 font-medium"><i data-lucide="calendar" class="w-4 h-4"></i> <span id="modalDate">Date</span></p>
+                <h3 class="text-xs font-bold text-tranzking-textPrimary uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-tranzking-muted/20 pb-2"><i data-lucide="users" class="w-4 h-4 text-tranzking-accent"></i> Drivers Attended (<span id="modalAttendanceCount">0</span>)</h3>
+                <div id="modalDriversList" class="flex flex-wrap gap-2 mb-6 max-h-32 overflow-y-auto custom-scrollbar pr-2"></div>
+                <a id="modalLinkBtn" href="#" target="_blank" class="w-full block text-center bg-tranzking-accent hover:opacity-90 text-tranzking-main font-bold py-3 rounded-lg transition-colors shadow-lg mb-4">View on TruckersMP <i data-lucide="external-link" class="w-4 h-4 inline-block ml-1 relative -top-0.5"></i></a>
+                <div id="modalEntryImageContainer" class="hidden rounded-xl overflow-hidden border border-tranzking-muted/30 shadow-md">
+                    <img id="modalEntryImage" src="" alt="Event Entry Details" class="w-full h-auto object-contain">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAMPAIGN ROUTE MODAL -->
+    <div id="campaignModal" class="custom-modal fixed inset-0 z-50 flex items-center justify-center modal-closed hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="closeModal('campaignModal')"></div>
+        <div class="custom-modal-content relative z-10 bg-tranzking-card border border-tranzking-muted/50 w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden relative">
+            <div id="campModalHeader" class="w-full h-32 relative border-b border-tranzking-muted/30 overflow-hidden bg-cover bg-center">
+                <div class="absolute inset-0 bg-gradient-to-t from-tranzking-card to-transparent"></div>
+                <button onclick="closeModal('campaignModal')" class="absolute top-4 right-4 bg-red-600/80 p-1.5 rounded-full text-white hover:bg-red-600 transition-colors z-20 shadow-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 sm:p-7 -mt-12 relative z-10">
+                <span class="inline-block px-2.5 py-1 bg-tranzking-distance text-[#05070a] text-[10px] font-black tracking-widest uppercase rounded shadow-[0_0_10px_rgba(74,222,128,0.4)] mb-2">TOUR ROUTE <span id="campModalId"></span></span>
+                
+                <h2 class="text-xl sm:text-2xl font-black text-tranzking-textPrimary leading-tight mb-1 flex items-center gap-2"><span id="campModalSource">Source</span> <i data-lucide="arrow-right" class="w-5 h-5 text-tranzking-distance"></i> <span id="campModalDest">Dest</span></h2>
+                <p class="text-tranzking-textSecondary text-xs mb-4 flex items-center gap-2"><span id="campModalSrcCo">Source Co</span> <i data-lucide="arrow-right" class="w-3 h-3 text-tranzking-muted"></i> <span id="campModalDstCo">Dest Co</span></p>
+                
+                <p class="text-tranzking-textSecondary text-sm flex items-center gap-2 mb-6 font-mono font-bold"><i data-lucide="milestone" class="w-4 h-4 text-tranzking-textSecondary"></i> <span id="campModalDist">0</span> km Target</p>
+                <h3 class="text-xs font-bold text-tranzking-textPrimary uppercase tracking-wider mb-3 flex items-center gap-2 border-b border-tranzking-muted/20 pb-2"><i data-lucide="users" class="w-4 h-4 text-tranzking-distance"></i> Completed By (<span id="campModalCount">0</span> / <span id="campModalTotalDrivers">0</span>)</h3>
+                <div id="campModalDriversList" class="flex flex-wrap gap-2 mb-2 max-h-40 overflow-y-auto custom-scrollbar pr-2"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SCRIPTS -->
+    <script src="core.js"></script>
+    <script src="api.js"></script>
+    <script src="overview.js"></script>
+    <script src="logs_events.js"></script>
+    <script src="tour.js"></script>
+    <script src="liveriders.js"></script>
+    <script src="init.js"></script>
+    
+    <script>
+        // GLOBAL VTC FILTER STATE
+        window.vtcFilterStates = { overview: { mode: 'ALL', value: '' }, logs: { mode: 'ALL', value: '' }, events: { mode: 'ALL', value: '' } };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.tranzking-vtc-filter').forEach(container => {
+                const tabs = container.querySelectorAll('.filter-tab');
+                const pickerContainer = container.querySelector('.picker-container');
+                const pickerLabel = container.querySelector('.picker-label');
+                const pickerDisplay = container.querySelector('.picker-display');
+                const monthInput = container.querySelector('.month-input');
+                const dateInput = container.querySelector('.date-input');
+                const targetFunc = container.dataset.target; // 'overview', 'logs', 'events'
+
+                const now = new Date();
+                const curMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                const curDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                monthInput.value = curMonth; 
+                dateInput.value = curDate;
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        tabs.forEach(t => {
+                            t.classList.remove('text-tranzking-revenue', 'bg-[#161f30]');
+                            t.classList.add('text-tranzking-textSecondary', 'bg-[#05070a]');
+                        });
+                        tab.classList.remove('text-tranzking-textSecondary', 'bg-[#05070a]');
+                        tab.classList.add('text-tranzking-revenue', 'bg-[#161f30]');
+
+                        let mode = tab.dataset.mode;
+                        const freshNow = new Date();
+                        const freshMonth = `${freshNow.getFullYear()}-${String(freshNow.getMonth() + 1).padStart(2, '0')}`;
+                        const freshDate = `${freshNow.getFullYear()}-${String(freshNow.getMonth() + 1).padStart(2, '0')}-${String(freshNow.getDate()).padStart(2, '0')}`;
+
+                        if (mode === 'ALL') {
+                            pickerContainer.classList.add('hidden');
+                            triggerFilter(targetFunc, mode, '');
+                        } else if (mode === 'MONTHLY') {
+                            pickerContainer.classList.remove('hidden');
+                            if (pickerLabel) pickerLabel.innerText = 'MONTH';
+                            monthInput.classList.remove('hidden'); 
+                            dateInput.classList.add('hidden');
+                            monthInput.value = freshMonth;
+                            updateDisplay(monthInput.value, 'month');
+                            triggerFilter(targetFunc, mode, monthInput.value);
+                        } else if (mode === 'DAILY') {
+                            pickerContainer.classList.remove('hidden');
+                            if (pickerLabel) pickerLabel.innerText = 'DATE';
+                            monthInput.classList.add('hidden'); 
+                            dateInput.classList.remove('hidden');
+                            dateInput.value = freshDate;
+                            updateDisplay(dateInput.value, 'date');
+                            triggerFilter(targetFunc, mode, dateInput.value);
+                        }
+                    });
+                });
+
+                monthInput.addEventListener('change', (e) => { updateDisplay(e.target.value, 'month'); triggerFilter(targetFunc, 'MONTHLY', e.target.value); });
+                dateInput.addEventListener('change', (e) => { updateDisplay(e.target.value, 'date'); triggerFilter(targetFunc, 'DAILY', e.target.value); });
+
+                function updateDisplay(val, type) {
+                    if (!val) { pickerDisplay.innerText = "Select..."; return; }
+                    const parts = val.split('-');
+                    let d;
+                    if (type === 'month') {
+                        d = new Date(parts[0], parseInt(parts[1]) - 1, 1);
+                        pickerDisplay.innerText = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                    } else {
+                        d = new Date(parts[0], parseInt(parts[1]) - 1, parts[2]);
+                        pickerDisplay.innerText = d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    }
+                }
+            });
+        });
+
+        function triggerFilter(target, mode, value) {
+            window.vtcFilterStates[target] = { mode: mode, value: value };
+            if (target === 'overview' && typeof applyOverviewFilter === 'function') applyOverviewFilter();
+            if (target === 'logs' && typeof applyLogFilters === 'function') applyLogFilters();
+            if (target === 'events' && typeof applyEventFilters === 'function') applyEventFilters();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const role = sessionStorage.getItem('tranzking_role');
+            if (role === 'leader' || role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+            }
+            if (typeof fetchSiteAssets === 'function') fetchSiteAssets();
+        });
+
+        // 🔴 🛡️ ENHANCED JOB DETAILS MODAL JAVASCRIPT LOGIC 🔴
+        window.openJobModal = function(index) {
+            try {
+                if (typeof globalFilteredJobs === 'undefined') return;
+                const row = globalFilteredJobs[index];
+                if (!row) return;
+                
+                document.getElementById('modalJobId').innerText = 'JOB #' + (row[1] || 'UNKNOWN');
+                
+                // Set Route with sleek arrow styling
+                document.getElementById('modalRoute').innerHTML = `${row[5] || '-'} <span class="text-tranzking-accent mx-1 opacity-70">→</span> ${row[7] || '-'}`;
+                document.getElementById('modalCargoSub').innerText = `${row[3] || 'Cargo'} • ${row[12] || '0 km'} driven`;
+                
+                document.getElementById('modalDriver').innerText = row[2] || 'DRIVER';
+                document.getElementById('modalTime').innerText = row[18] || '0h 0m';
+                document.getElementById('modalRevenueTop').innerText = row[15] || '€0';
+                
+                document.getElementById('modalStartTime').innerText = row[0] || 'Unknown';
+                document.getElementById('modalDepCity').innerText = row[5] || '-';
+                document.getElementById('modalDepCo').innerText = row[6] || '-';
+                document.getElementById('modalDestCity').innerText = row[7] || '-';
+                document.getElementById('modalDestCo').innerText = row[8] || '-';
+                
+                document.getElementById('modalTruck').innerText = row[9] || 'Unknown';
+                document.getElementById('modalDamage').innerText = row[14] || '0%';
+                document.getElementById('modalTrailer').innerText = row[10] || 'Unknown';
+                document.getElementById('modalWeight').innerText = row[4] || '0 t';
+                
+                document.getElementById('statCargo').innerText = row[3] || '-';
+                document.getElementById('statDist').innerText = row[12] || '0 km';
+                document.getElementById('statPlan').innerText = row[11] || '0 km';
+                document.getElementById('statTime').innerText = row[18] || '0h 0m';
+                document.getElementById('statRev').innerText = row[15] || '€0';
+                document.getElementById('statFuel').innerText = row[17] || '0 L';
+                document.getElementById('statTopSpd').innerText = row[13] || '0 km/h';
+                document.getElementById('statAvgSpd').innerText = row[19] || '0 km/h';
+                document.getElementById('statPark').innerText = row[16] || 'NO';
+                
+                // Enhanced Glowing Timeline Builder
+                const tlContainer = document.getElementById('modalTimelineContainer');
+                let tlHtml = `
+                    <div class="relative">
+                        <div class="absolute -left-[26px] top-1 w-3 h-3 rounded-full bg-tranzking-accent border-2 border-[#0a0e14] shadow-[0_0_8px_rgba(56,189,248,0.8)]"></div>
+                        <p class="text-xs font-bold text-white tracking-wide">Started Engine</p>
+                        <p class="text-[10px] text-tranzking-textSecondary font-mono mt-0.5">${(row[0] || '').split(' ')[1] || '00:00'}</p>
+                    </div>
+                `;
+                
+                let timelineStr = row[20] || '';
+                if(timelineStr && timelineStr !== 'Clean Drive') {
+                    let events = timelineStr.split('|');
+                    events.forEach(evt => {
+                        if(evt.trim()) {
+                            tlHtml += `
+                            <div class="relative mt-5">
+                                <div class="absolute -left-[26px] top-1 w-3 h-3 rounded-full bg-red-500 border-2 border-[#0a0e14] shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
+                                <p class="text-xs font-bold text-red-400 tracking-wide">Damage Taken</p>
+                                <p class="text-[10px] text-tranzking-textSecondary font-mono mt-0.5">${evt.trim()}</p>
+                            </div>`;
+                        }
+                    });
+                }
+                
+                tlHtml += `
+                    <div class="relative mt-5">
+                        <div class="absolute -left-[26px] top-1 w-3 h-3 rounded-full bg-green-500 border-2 border-[#0a0e14] shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
+                        <p class="text-xs font-bold text-green-400 tracking-wide">Cargo Delivered</p>
+                        <p class="text-[10px] text-tranzking-textSecondary font-mono mt-0.5">Safe Arrival</p>
+                    </div>
+                `;
+                if(tlContainer) tlContainer.innerHTML = tlHtml;
+                
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                const modal = document.getElementById('jobDetailsModal');
+                if(modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    requestAnimationFrame(() => {
+                        modal.classList.add('modal-open');
+                        modal.classList.remove('modal-closed');
+                    });
+                }
+                
+            } catch(e) {
+                console.error("Modal Error:", e);
+                alert("Could not load job details: " + e.message);
+            }
+        };
+
+        window.closeJobModal = function() {
+            const modal = document.getElementById('jobDetailsModal');
+            if(modal) {
+                modal.classList.remove('modal-open');
+                modal.classList.add('modal-closed');
+                setTimeout(() => { 
+                    modal.classList.add('hidden'); 
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+        };
+    </script>
+</body>
+</html>
