@@ -1,4 +1,4 @@
-# 🚛 tranzking Telemetry Engine & Live Dashboard :
+# 🚛 tranzking Telemetry Engine & Live Dashboard : https://tnldivision.github.io/TranZking-Dashboard/
 
 
 A high-performance, real-time telemetry tracking system and live web dashboard built for the **TranzKing (tranzking)** division under **Tamilnadu Logistics (TNL)**. 
