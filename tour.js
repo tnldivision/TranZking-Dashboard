@@ -423,6 +423,7 @@ function openCampModal(tourName, sNo, src, srcCo, dst, dstCo, dist, imgUrl, comp
     let html = "";
     if (completedDriversArr.length > 0) {
         completedDriversArr.forEach(d => {
+            // Retained the tranzking- styling for this site
             html += `<span class="bg-tranzking-main border border-tranzking-distance/30 text-tranzking-distance px-3 py-1.5 rounded-md text-xs font-bold tracking-wide shadow-[0_0_10px_rgba(74,222,128,0.1)] flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3 h-3"></i> ${d}</span>`;
         });
     } else {
@@ -435,10 +436,16 @@ function openCampModal(tourName, sNo, src, srcCo, dst, dstCo, dist, imgUrl, comp
     let totalEl = document.getElementById('campModalTotalDrivers');
     if(totalEl) totalEl.textContent = totalDriversCount;
     
+    // 🛠️ THE BUG FIX: Remove hidden, add flex, then animate!
     let modal = document.getElementById('campaignModal');
     if(modal) {
-        modal.classList.remove('modal-closed');
-        modal.classList.add('modal-open');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        requestAnimationFrame(() => {
+            modal.classList.remove('modal-closed');
+            modal.classList.add('modal-open');
+        });
     }
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
